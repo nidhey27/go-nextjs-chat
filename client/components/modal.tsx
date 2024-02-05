@@ -14,7 +14,6 @@ const Modal = ({ isOpen, onClose }) => {
       };
 
       await createRoom(room).then((res: any) => {
-        // console.log(res.data);
         Toast({
           message: "Room Created",
           type: "success",
@@ -27,7 +26,6 @@ const Modal = ({ isOpen, onClose }) => {
 
       });
     } catch (error: any) {
-      console.log(error);
       Toast({
         message: error.response.data.error.toUpperCase(),
         type: "error",

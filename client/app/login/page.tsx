@@ -44,7 +44,6 @@ export default function login() {
 
         }
         catch (error: any) {
-            console.log(error);
             Toast({
                 message: error.response.data.error.toUpperCase(),
                 type: "error",

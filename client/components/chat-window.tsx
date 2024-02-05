@@ -2,20 +2,19 @@
 import React, { useState, useRef, useContext, useEffect } from "react";
 import ChatBody from "./chat-body";
 import { WebsocketContext } from "@/app/context/ws";
-import { ChatContext } from "@/app/context/rooms";
+import { ChatContext, Room, Message } from "@/app/context/rooms";
 import { UserContext } from "@/app/context/user";
 
-export default function ChatWindow({ room, messages }) {
+export default function ChatWindow({ room, messages }: { room: any, messages: any }) {
   const scrollContainerRef = useRef(null);
-  const [message, setMessage] = useState();
+  const [message, setMessage] = useState("");
   const { conn } = useContext(WebsocketContext);
-  const { rooms, addMessageToRoom, addUserToRoom, removeUserFromRoom } =
+  const { addMessageToRoom, addUserToRoom, removeUserFromRoom } =
     useContext(ChatContext);
   // const [messages, setMessages] = useState([]);
   const { user } = useContext(UserContext);
 
   const sendMessage = async () => {
-    // console.log("Send Message");
     setMessage("");
     conn.send(message);
     addMessageToRoom(room.id, {
@@ -34,19 +33,13 @@ export default function ChatWindow({ room, messages }) {
   };
 
   useEffect(() => {
-    // const r = rooms.find((r) => r.id === room.id); // Use find instead of filter
-    // if (r) {
-    //   setMessages(r.messages); // Update messages state with the messages of the room
-    // }
-
     if (conn != null) {
       // Move WebSocket event listeners setup inside the if block
       conn.onmessage = (message) => {
+        console.log("Message received...");
+
         const m = JSON.parse(message.data);
         if (m.content.includes("has lft the room.")) {
-          // setUsers((prevUsers) =>
-          //   prevUsers.filter((user) => !m.content.includes(user))
-          // ); // console.log("On Message");
           removeUserFromRoom(room.id, {
             id: "",
             roomId: room.id,
@@ -58,20 +51,17 @@ export default function ChatWindow({ room, messages }) {
             content: m.content,
           });
         } else if (m.content.includes("has joined the room.")) {
-          // setUsers((prevUsers) => [...prevUsers, m.username]);
           addUserToRoom(room.id, {
             id: "",
             roomId: room.id,
             username: m.username,
           });
-          // console.log("On Message");
           addMessageToRoom(room.id, {
             type: user.username !== m.username ? "other" : "self",
             username: m.username,
             content: m.content,
           });
         } else if (user.username != m.username) {
-          // console.log("On Message");
           addMessageToRoom(room.id, {
             type: user.username !== m.username ? "other" : "self",
             username: m.username,
@@ -89,19 +79,15 @@ export default function ChatWindow({ room, messages }) {
       };
 
       conn.onclose = () => {
-        // alert("closed");
       };
       conn.onerror = () => {
-        // alert("err");
       };
       conn.onopen = () => {
-        // alert("open");
       };
     }
-  }, []); // Update the dependencies to include conn
+  }); // Update the dependencies to include conn
 
   useEffect(() => {
-    console.log(messages);
   }, [messages]);
 
   return (

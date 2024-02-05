@@ -21,23 +21,25 @@ export default function page() {
     const getRooms = async () => {
         try {
             const resp = await GetRooms();
-            const rooms = resp.data.map((room: any) => ({
-                id: room.id,
-                name: room.name,
-                clients: Array<Client>(),
-                active: false,
-                messages: [],
-            }));
+            const rooms = [];
+            for (let i = 0; i < resp.data.length; i++) {
+                const room = resp.data[i];
 
+                const modifiedRoom = {
+                    id: room.id,
+                    name: room.name,
+                    clients: room.clients ? room.clients : [],
+                    active: room.active ? true : false,
+                    messages: room.messages ? room.messages : [],
+                };
+
+                rooms.push(modifiedRoom);
+            }
             setRooms(rooms);
 
 
         } catch (error: any) {
             console.log(error);
-            // Toast({
-            //     message: error?.response?.data?.error?.toUpperCase() || error,
-            //     type: "error",
-            // });
         }
     };
 
@@ -54,9 +56,8 @@ export default function page() {
                 setMessages(r.messages); // Update messages state with the messages of the room
             }
         }
-        // console.log(rooms);
 
-    }, [activeRoom, messages])
+    }, [rooms, activeRoom, messages])
 
     return (
         <div className='flex items-center justify-center h-screen'>

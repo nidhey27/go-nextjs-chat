@@ -22,7 +22,6 @@ export default function PeopleList({ rooms, setActiveRoom }: { rooms: any, setAc
     const handelClick = (id: string) => {
         for (let i = 0; i < rooms.length; i++) {
             if (rooms[i].id == id && rooms[i].active) {
-                console.log("Ky hua re baba terko?", rooms[i].active, rooms[i].id, id);
                 return
             }
         }
@@ -30,28 +29,32 @@ export default function PeopleList({ rooms, setActiveRoom }: { rooms: any, setAc
         if (conn) {
             conn.close();
         }
-        const updatedRooms = rooms.map((room: any) => ({
-            ...room,
-            active: room.id == id
-        }));
-        console.log("Just update", updatedRooms);
+        // const updatedRooms = rooms.map((room: any) => ({
+        //     ...room,
+        //     active: room.id == id
+        // }));
+
+        const updatedRooms: any = [];
+        for (let i = 0; i < rooms.length; i++) {
+            const room = rooms[i];
+            
+            const modifiedRoom = {
+                id: room.id,
+                name: room.name,
+                clients: room.clients ? room.clients : [],
+                active: room.id == id,
+                messages: room.messages ? room.messages : [],
+            };
+
+            updatedRooms.push(modifiedRoom);
+        }
 
         setRooms(updatedRooms);
 
         const r = updatedRooms.find((room: any) => {
             return room.id == id && room.active
         })
-        console.log(r, updatedRooms)
         setActiveRoom(r);
-
-
-        // setActiveRoom([rooms.find((room: any) => room.id === id)]);
-        // setActiveRoom(rooms.filter((room) => {
-        //     room.id == id
-        // }))
-
-
-        // console.log(rooms.find((room: any) => room.id === id));
 
         const ws = new WebSocket(
             `${process.env.NEXT_PUBLIC_WS_URL}/ws/join-room/${id}?userId=${sessionStorage.getItem("id")}&username=${sessionStorage.getItem("username")}`

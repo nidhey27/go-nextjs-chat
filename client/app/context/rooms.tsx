@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, createContext } from 'react'
 
-interface Room {
+export interface Room {
     id: string
     name: string
     clients: Array<Client>
@@ -20,7 +20,7 @@ enum MessageType {
     other,
 }
 
-interface Message {
+export interface Message {
     content: string
     roomId: string
     username: string
@@ -47,6 +47,8 @@ const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     const [rooms, setRooms] = useState<Array<Room>>([])
 
     const addUserToRoom = (roomId: string, user: Client) => {
+        console.log("Add user to Room Called");
+
         const updated = rooms.map((room) => {
             if (room.id === roomId) {
                 room.clients.push(user);
@@ -58,10 +60,11 @@ const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     const removeUserFromRoom = (roomId: string, user: Client) => {
+        console.log("Remove to Room Called");
         const updated = rooms.map((room) => {
             if (room.id === roomId) {
                 // Filter out the user to be removed from the room's clients array
-                room.clients = room.clients.filter((u) => u.id !== user.id);
+                room.clients = room.clients.filter((u) => u.username !== user.username);
             }
             return room;
         });
